@@ -11,7 +11,7 @@ import edu.wpi.first.math.trajectory.TrajectoryUtil;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
-import frc.robot.OdometryDrivetrain;
+import frc.robot.subsystems.OdometryDrivetrain;
 
 import java.io.IOException;
 import java.nio.file.Path;

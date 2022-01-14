@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import com.spikes2212.dashboard.RootNamespace;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -9,7 +8,6 @@ import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import frc.robot.OdometryDrivetrain;
 import frc.robot.Robot;
 
 public class TrajectoryDrivetrain extends OdometryDrivetrain {

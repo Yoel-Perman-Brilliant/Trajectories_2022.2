@@ -19,8 +19,11 @@ import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.commands.FollowTrajectory;
 import frc.robot.subsystems.TrajectoryDrivetrain;
 
 import java.util.function.Supplier;
@@ -31,7 +34,7 @@ import java.util.function.Supplier;
  * the package after creating this project, you must also update the build.gradle file in the
  * project.
  */
-public class Robot extends TimedRobot {
+public class Robot extends TimedRobot implements RobotMap.Drivetrain {
     public static RootNamespace root = new RootNamespace("Trajectories");
 
     private static Supplier<Double> leftKP = root.addConstantDouble("left kP", 0);
@@ -53,8 +56,8 @@ public class Robot extends TimedRobot {
     @Override
     public void robotInit() {
 
-        MotorControllerGroup leftSCG = new MotorControllerGroup(new WPI_TalonSRX(RobotMap.LEFT_TALON), new WPI_VictorSPX(RobotMap.LEFT_VICTOR));
-        MotorControllerGroup rightSCG = new MotorControllerGroup(new WPI_VictorSPX(RobotMap.RIGHT_VICTOR__1), new WPI_VictorSPX(RobotMap.RIGHT_VICTOR_2));
+        MotorControllerGroup leftSCG = new MotorControllerGroup(new WPI_TalonSRX(LEFT_TALON), new WPI_VictorSPX(LEFT_VICTOR));
+        MotorControllerGroup rightSCG = new MotorControllerGroup(new WPI_VictorSPX(RIGHT_VICTOR_1), new WPI_VictorSPX(RIGHT_VICTOR_2));
 
         Encoder leftEncoder = new Encoder(0, 1);
         Encoder rightEncoder = new Encoder(3, 2);
@@ -69,14 +72,19 @@ public class Robot extends TimedRobot {
 
         drivetrain = new TrajectoryDrivetrain(leftSCG, rightSCG, leftEncoder, rightEncoder, gyro);
 
-        OI oi = new OI();
-
-        DriveArcade driveArcade = new DriveArcade(drivetrain, oi::getRightY, oi::getLeftX);
+        DriveArcade driveArcade = new DriveArcade(drivetrain, OI::getRightY, OI::getLeftX);
         drivetrain.setDefaultCommand(driveArcade);
 
+        FollowTrajectory followTrajectory = new FollowTrajectory(drivetrain, "horizontal.wpilib.json", leftPID,
+                rightPID, ffs);
+
+        InstantCommand resetOdometry = new InstantCommand(() -> drivetrain.resetOdometry(new Pose2d()));
+
+        root.putData("follow trajectory", followTrajectory);
+        root.putData("reset odometry", resetOdometry);
 
 
-        root.putData("reset odometry", new InstantCommand(() -> drivetrain.resetOdometry(new Pose2d(0, 0, new Rotation2d()))));
+
     }
 
     /**
@@ -88,13 +96,10 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void robotPeriodic() {
-        // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
-        // commands, running already-scheduled commands, removing finished or interrupted commands,
-        // and running subsystem periodic() methods.  This must be called from the robot's periodic
-        // block in order for anything in the Command-based framework to work.
-//        root.update();
-//        drivetrain.periodic();
-//        CommandScheduler.getInstance().run();
+
+        root.update();
+        drivetrain.periodic();
+        CommandScheduler.getInstance().run();
     }
 
     /**
